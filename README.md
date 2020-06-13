@@ -1,5 +1,9 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## `npm install`
+
+This is my test project for pivotate, Install the packages first.
+
 ## Available Scripts
 
 In the project directory, you can run:
