@@ -1,17 +1,13 @@
 import React from 'react';
 import { Field, ErrorMessage } from 'formik';
-import { Row, ErrorContainer } from './RegistrationForm.style';
+import { Row, FormControl, ErrorContainer } from './RegistrationForm.style';
 
-const RegistrationField = ({
-  fieldLabel,
-  type,
-  name,
-}) => (
+const RegistrationField = ({ fieldLabel, type, name }) => (
   <Row>
-    <label>
-      {fieldLabel}
-      <Field type={type} name={name} />
-    </label>
+    <FormControl>
+      {/* {fieldLabel} */}
+      <Field type={type} name={name} placeholder={fieldLabel} />
+    </FormControl>
     <ErrorContainer>
       <ErrorMessage name={name} />
     </ErrorContainer>

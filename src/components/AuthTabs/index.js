@@ -1,45 +1,53 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-const MenuContainer = styled.div`
-  padding: 1em;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  box-shadow: 10px 10px 8px rgba(0, 0, 0, 0.6);
-
-  margin-bottom: 20px;
+const AuthWrapper = styled.div`
+  display: grid;
+  grid-gap: 1em;
 `;
 
-const Button = styled.button(({ selected }) => `
-  font-size: 1.25em;
-  background-color: #ffffff;
+const MenuContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 1em;
+`;
+
+const Button = styled.button(
+  ({ selected }) => `
+
+  background: transparent;
   opacity: ${selected ? 1.0 : 0.5};
   border: none;
-  padding: 5px;
+
+  padding: 0;
+  margin: 0;
+  text-transform: uppercase;
+  color: ${selected ? '#4AA5D4' : '#999'};
   cursor: ${selected ? 'initial' : 'pointer'};
   transition: opacity 0.5s ease;
-
   &:hover {
     opacity: 1.0;
     text-decoration: underline;
   }
-`);
+`
+);
 
 const AuthTabs = ({ menuTitles, children }) => {
   const [selectedTab, setSelectedTab] = useState(0);
 
   return (
-    <div>
+    <AuthWrapper>
       <MenuContainer>
         {menuTitles.map((title, index) => (
-          <Button 
+          <Button
+            key={index}
             selected={index === selectedTab}
-            onClick={e => {
+            onClick={(e) => {
               e.preventDefault();
 
               setSelectedTab(index);
-            }
-          }>
+            }}
+          >
             {title}
           </Button>
         ))}
@@ -50,13 +58,11 @@ const AuthTabs = ({ menuTitles, children }) => {
             return null;
           }
 
-          return (
-            <div class="test">{child}</div>
-          );
+          return <div className='test'>{child}</div>;
         })}
       </div>
-    </div>
+    </AuthWrapper>
   );
-}
+};
 
 export default AuthTabs;
