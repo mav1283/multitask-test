@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { EXECUTE } from '@nostack/no-stack';
 import compose from '@shopify/react-compose';
 import { graphql } from '@apollo/react-hoc';
-//import Modal from 'react-modal';
+
 import ModalContainer from '../../Modals/ModalContainer';
 import '../../Modals/modals.css';
+
 import { FaCheck, FaTrashAlt, FaEdit } from 'react-icons/fa';
 
 import {
@@ -26,6 +27,7 @@ const ItemStyleWrapper = styled.div(
   align-items: center;
   background-color: ${selected ? '#c8d3d9' : 'auto'};
   cursor: ${selected ? 'auto' : 'pointer'};
+  p
 `
 );
 
@@ -34,6 +36,7 @@ const Button = styled.button`
   border: none;
   cursor: pointer;
   font-size: 1.25rem;
+  line-height: 1;
   padding: 0;
   color: #fff;
   transition: color 0.5s ease;
@@ -49,6 +52,7 @@ const ItemCheckBox = styled.label`
   align-items: center;
   width: 2em;
   height: 2em;
+  line-height: 1;
   background: #f9f9f9;
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 6px;
@@ -67,14 +71,19 @@ const ItemCheckBox = styled.label`
   }
 `;
 
-const ItemValueContainer = styled.p`
+const ItemValueContainer = styled.label`
   margin: 0;
   padding: 0;
   font-size: 1.25rem;
+  line-height: 1;
   text-align: left;
   text-transform: capitalize;
-  text-decoration: ${(props) => props.isChecked && 'line-through'};
-  color: ${(props) => (props.isChecked ? '#dae1e5' : '#000')};
+  text-decoration: ${(props) => props.isCrossedOut && 'line-through'};
+  color: ${(props) => (props.isCrossedOut ? '#dae1e5' : '#000')};
+  cursor: pointer;
+  input {
+    display: none;
+  }
 `;
 
 function Item({
@@ -84,42 +93,36 @@ function Item({
   updateInstance,
   deleteInstance,
   refetchQueries,
-  onSelect,
+  selectHandler,
 }) {
   const [itemValue, updateItemValue] = useState(item.value);
   const [editModal, setEditModal] = useState(false);
   const [isSaving, updateIsSaving] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [isDeleting, updateIsDeleting] = useState(false);
-  const [isChecked, updateIsChecked] = useState(false);
+  const [isCrossedOut, updateIsCrossedOut] = useState(false);
 
-  const handleEditModal = () => setEditModal((prevState) => !prevState);
-  const handleDeleteModal = () => setDeleteModal((prevState) => !prevState);
+  const openEditModal = () => setEditModal(true);
+  const closeEditModal = () => setEditModal(false);
+  const openDeleteModal = () => setDeleteModal(true);
+  const closeDeleteModal = () => setDeleteModal(false);
+  // const handleOutsideClick = () => {
+  //   if (selected === item.id) {
+  //     selectHandler('');
+  //   }
+  // };
 
-  if (!selected) {
-    return (
-      <ItemStyleWrapper>
-        <ItemCheckBox htmlFor={item.id}>
-          <input
-            type='checkbox'
-            id={item.id}
-            checked={isChecked}
-            onChange={handleItemCheckedStatus}
-          />
-          <FaCheck />
-        </ItemCheckBox>
-        <ItemValueContainer
-          onClick={() => onSelect(item.id)}
-          isChecked={isChecked}
-        >
-          {itemValue}
-        </ItemValueContainer>
-      </ItemStyleWrapper>
-    );
-  }
+  useEffect(() => {
+    console.log(selected);
+  }, []);
+
+  // useEffect(() => {
+  //   document.addEventListener('mousedown', handleOutsideClick);
+  //   return () => document.removeEventListener('mousedown', handleOutsideClick);
+  // }, []);
 
   function handleItemCheckedStatus() {
-    updateIsChecked((previousState) => !previousState);
+    updateIsCrossedOut((previousState) => !previousState);
   }
 
   function handleItemValueChange(e) {
@@ -140,17 +143,20 @@ function Item({
       refetchQueries,
     });
 
-    setEditModal(false);
-    updateIsSaving(false);
+    await updateIsSaving(false);
+    await closeEditModal();
+    await selectHandler('');
+    console.log('Saving');
   }
 
   function handleCancelEdit() {
-    setEditModal(false);
+    closeEditModal();
+    selectHandler('');
+    console.log('Canceling');
   }
 
   async function handleDelete() {
     updateIsDeleting(true);
-
     try {
       await deleteInstance({
         variables: {
@@ -162,13 +168,42 @@ function Item({
         },
         refetchQueries,
       });
+      await closeDeleteModal();
+      await selectHandler('');
     } catch (e) {
       updateIsDeleting(false);
     }
+    console.log('Deleting');
   }
 
   function handleCancelDelete() {
-    setDeleteModal(false);
+    closeDeleteModal();
+    selectHandler('');
+  }
+
+  if (selected !== item.id) {
+    return (
+      <ItemStyleWrapper>
+        <ItemCheckBox htmlFor={item.id}>
+          <input
+            type='checkbox'
+            id={item.id}
+            checked={isCrossedOut}
+            onChange={handleItemCheckedStatus}
+          />
+          <FaCheck />
+        </ItemCheckBox>
+        <ItemValueContainer isCrossedOut={isCrossedOut}>
+          {itemValue}
+          <input
+            type='radio'
+            checked={item.id === selected}
+            value={item.id}
+            onChange={(e) => selectHandler(e.target.value)}
+          />
+        </ItemValueContainer>
+      </ItemStyleWrapper>
+    );
   }
 
   return (
@@ -177,44 +212,56 @@ function Item({
         <input
           type='checkbox'
           id={item.id}
-          checked={isChecked}
+          checked={isCrossedOut}
           onChange={handleItemCheckedStatus}
         />
+        <FaCheck />
       </ItemCheckBox>
-      <ItemValueContainer>{itemValue}</ItemValueContainer>
 
-      <Button type='button' onClick={handleEditModal}>
+      <ItemValueContainer>
+        {itemValue}
+        <input
+          type='radio'
+          checked={selected === item.id}
+          value={item.id}
+          onChange={(e) => selectHandler(e.target.value)}
+        />
+      </ItemValueContainer>
+
+      <Button type='button' id='edit-modal' onClick={openEditModal}>
         <FaEdit />
       </Button>
-      <Button type='button' onClick={handleDeleteModal}>
+      <Button type='button' id='delete-modal' onClick={openDeleteModal}>
         <FaTrashAlt />
       </Button>
-      <ModalContainer status={editModal} exithandler={handleEditModal}>
-        <div className='modal-body'>
-          <EditInstanceForm
-            id={item.id}
-            label='Item Value:'
-            value={itemValue}
-            onChange={handleItemValueChange}
-            onSave={handleItemValueSave}
-            onCancel={handleCancelEdit}
-            disabled={isSaving}
-          />
-        </div>
+
+      <ModalContainer status={editModal} exitHandler={closeEditModal}>
+        <EditInstanceForm
+          id={item.id}
+          label='Item Value:'
+          value={itemValue}
+          changeHandler={handleItemValueChange}
+          saveHandler={handleItemValueSave}
+          cancelHandler={handleCancelEdit}
+          disabled={isSaving}
+          exitModal={closeEditModal}
+        />
       </ModalContainer>
-      <ModalContainer status={deleteModal} exithandler={handleDeleteModal}>
-        <div className='modal-body'>
-          <ItemValueContainer>{itemValue}</ItemValueContainer>
-          <DeleteInstanceMenu
-            onDelete={handleDelete}
-            onCancel={handleCancelDelete}
-            disabled={isDeleting}
-          />
-        </div>
+
+      <ModalContainer status={deleteModal} exitHandler={closeDeleteModal}>
+        <ItemValueContainer>{itemValue}</ItemValueContainer>
+        <DeleteInstanceMenu
+          deleteHandler={handleDelete}
+          cancelHandler={handleCancelDelete}
+          disabled={isDeleting}
+          exitModal={closeDeleteModal}
+        />
       </ModalContainer>
     </ItemStyleWrapper>
   );
 }
+
+// export default Item;
 
 export default compose(
   graphql(EXECUTE, { name: 'updateInstance' }),

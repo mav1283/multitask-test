@@ -1,8 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { MdCheck, MdClose } from 'react-icons/md';
 
-const Form = styled.form`
+const FormWrapper = styled.div`
   grid-row: 2;
   display: grid;
   grid-template-columns: 1fr auto auto;
@@ -81,33 +81,34 @@ function EditInstanceForm({
   id,
   label,
   value,
-  onChange,
-  onSave,
-  onCancel,
+  changeHandler,
+  saveHandler,
+  cancelHandler,
   disabled,
 }) {
   const inputRef = useRef();
-
   useEffect(() => {
     inputRef.current.focus();
   }, []);
+  useEffect(() => {
+    console.log(id);
+  }, []);
 
   return (
-    <Form>
+    <FormWrapper>
       <FormControl htmlFor={id}>
         <input
           id={id}
           type='text'
           ref={inputRef}
           value={value}
-          onChange={onChange}
+          onChange={changeHandler}
           disabled={disabled}
         />
       </FormControl>
       <SubmitButton
         type='button'
-        hoverColor='#00FF00'
-        onClick={onSave}
+        onClick={saveHandler}
         disabled={disabled}
         success
       >
@@ -115,15 +116,17 @@ function EditInstanceForm({
       </SubmitButton>
       <SubmitButton
         type='button'
-        hoverColor='#FF0000'
-        onClick={onCancel}
+        onClick={cancelHandler}
         disabled={disabled}
         danger
       >
         <MdClose />
       </SubmitButton>
-    </Form>
+    </FormWrapper>
   );
 }
 
 export default EditInstanceForm;
+// export default compose(graphql(EXECUTE, { name: 'updateInstance' }))(
+//   EditInstanceForm
+// );

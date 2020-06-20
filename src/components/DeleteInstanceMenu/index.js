@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { FormikContext } from 'formik';
 import { MdCheck, MdClose } from 'react-icons/md';
 
-const Form = styled.form`
+const FormWrapper = styled.div`
   grid-row: 2;
   display: grid;
   grid-template-columns: 1fr auto auto;
@@ -78,16 +77,15 @@ const SubmitButton = styled.button`
   }
 `;
 
-function DeleteInstanceMenu({ onDelete, onCancel, disabled }) {
+function DeleteInstanceMenu({ deleteHandler, cancelHandler, disabled }) {
   return (
-    <Form>
+    <FormWrapper>
       <FormControl>
         <p>Delete?</p>
       </FormControl>
       <SubmitButton
         type='button'
-        hoverColor='#00FF00'
-        onClick={onDelete}
+        onClick={deleteHandler}
         disabled={disabled}
         success
       >
@@ -95,14 +93,13 @@ function DeleteInstanceMenu({ onDelete, onCancel, disabled }) {
       </SubmitButton>
       <SubmitButton
         type='button'
-        hoverColor='#FF0000'
-        onClick={onCancel}
+        onClick={cancelHandler}
         disabled={disabled}
         danger
       >
         <MdClose />
       </SubmitButton>
-    </Form>
+    </FormWrapper>
   );
 }
 

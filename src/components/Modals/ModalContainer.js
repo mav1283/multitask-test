@@ -2,9 +2,9 @@ import React from 'react';
 import Modal from 'react-modal';
 import './modals.css';
 
-const ModalContainer = ({ children, status, exithandler }) => {
+const ModalContainer = ({ children, status, exitHandler }) => {
   return (
-    <Modal isOpen={status} onRequestClose={exithandler}>
+    <Modal isOpen={status} onRequestClose={exitHandler}>
       {children}
     </Modal>
   );

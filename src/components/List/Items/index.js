@@ -46,7 +46,7 @@ const ItemsStyleWrapper = styled.div`
 `;
 
 const ItemsContentStatus = styled.h3`
-  diplay: flex;
+  display: flex;
   justify-content: start;
   text-align: left;
   margin: 0;
@@ -104,24 +104,24 @@ const AddTaskButton = styled.button`
 
 function Items(props) {
   const wrapperRef = useRef();
-  const [selectedItemId, setSelectedItemId] = useState(null);
+  const [selectedItemId, setSelectedItemId] = useState('');
   const [addTaskModal, setAddTaskModal] = useState(false);
 
-  const handleClick = (e) => {
-    const node = wrapperRef.current;
+  // const handleClick = (e) => {
+  //   const node = wrapperRef.current;
 
-    if (node && node !== e.target && !node.contains(e.target)) {
-      setSelectedItemId(null);
-    }
-  };
+  //   if (node && node !== e.target && !node.contains(e.target)) {
+  //     setSelectedItemId('');
+  //   }
+  // };
 
   const handleSelect = (id) => setSelectedItemId(id);
   const handleModal = () => setAddTaskModal((prevState) => !prevState);
 
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
+  // useEffect(() => {
+  //   document.addEventListener('mousedown', handleClick);
+  //   return () => document.removeEventListener('mousedown', handleClick);
+  // }, []);
 
   const { userId } = props;
 
@@ -148,7 +148,9 @@ function Items(props) {
 
         return (
           <ItemsPageWrapper>
-            <ItemsStyleWrapper ref={wrapperRef} onClick={handleClick}>
+            <ItemsStyleWrapper
+            // ref={wrapperRef} onClick={handleClick}
+            >
               <ItemsContentStatus isEmpty={items.length !== 0 ? true : false}>
                 {items.length !== 0 ? 'Active tasks' : 'No active tasks'}
               </ItemsContentStatus>
@@ -159,9 +161,9 @@ function Items(props) {
                       key={v4()}
                       parentId={userId}
                       item={item}
-                      selected={item.id === selectedItemId}
+                      selected={selectedItemId}
                       refetchQueries={refetchQueries}
-                      onSelect={handleSelect}
+                      selectHandler={handleSelect}
                     />
                   ))}
               </ItemsList>
